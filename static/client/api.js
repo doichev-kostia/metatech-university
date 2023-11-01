@@ -16,17 +16,22 @@ const structure = {
     },
 }
 
-function buildApi(transport) {
+function buildApi(url) {
+    const u = new URL(url);
+    const scheme = u.protocol.slice(0, -1);
+    const transport = scheme === "ws" ? "ws" : "http";
+    let client;
     if (transport === "http") {
-        return new http.Client(structure, {
-            prefixURL: "http://127.0.0.1:8080",
+        client = new http.Client(structure, {
+            prefixURL: url
         })
-    } else if (transport === "ws") {
-        return new ws.Client(structure, {
-            url: "ws://127.0.0.1:8001/",
+    } else{
+        client = new ws.Client(structure, {
+            prefixURL: url
         })
-
     }
+
+    return client.init();
 }
 
-export const client = buildApi("http");
+export const client = await buildApi("ws://127.0.0.1:8080");
