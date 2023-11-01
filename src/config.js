@@ -18,7 +18,7 @@ const ports = {
 
 const transportOptions = ["http", "ws", "https", "wss"];
 
-const transport = "https";
+const transport = "wss";
 
 const tlsConfig = {
     key: path.resolve(process.cwd(), "tls", "key.pem"),

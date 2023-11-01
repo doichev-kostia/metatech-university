@@ -19,7 +19,7 @@ const structure = {
 function buildApi(url) {
     const u = new URL(url);
     const scheme = u.protocol.slice(0, -1);
-    const transport = scheme === "ws" ? "ws" : "http";
+    const transport = scheme === "ws" || scheme === "wss" ? "ws" : "http";
     let client;
     if (transport === "http") {
         client = new http.Client(structure, {
@@ -34,4 +34,4 @@ function buildApi(url) {
     return client.init();
 }
 
-export const client = await buildApi("https://127.0.0.1:8080");
+export const client = await buildApi("wss://127.0.0.1:8080");
