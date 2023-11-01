@@ -15,7 +15,7 @@ const sandbox = {
     db: Object.freeze(db),
     common: { hash },
 };
-const apiPath = path.join(process.cwd(), "./api");
+const apiPath = path.join(process.cwd(), "./src/api");
 const routing = {};
 
 /**
@@ -44,6 +44,6 @@ try {
         routing[serviceName] = await load(filePath, sandbox);
     }
 
-    staticServer("./static", ports.static);
+    staticServer(path.resolve('./static'), ports.static);
     server(routing, ports.api);
 })();
