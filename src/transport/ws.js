@@ -10,7 +10,7 @@ module.exports = (routing, port) => {
     const ip = req.socket.remoteAddress;
     connection.on('message', async (message) => {
       const obj = JSON.parse(message);
-      const { name, method, args = [] } = obj;
+      const { name, method, data } = obj;
       const entity = routing[name];
       if (!entity) {
         connection.send('"Not found"', { binary: false });
@@ -21,11 +21,9 @@ module.exports = (routing, port) => {
         connection.send('"Not found"', { binary: false });
         return;
       }
-      const json = JSON.stringify(args);
-      const parameters = json.substring(1, json.length - 1);
-      console.log(`${ip} ${name}.${method}(${parameters})`);
+      console.log(`${ip} ${name}.${method}(${JSON.stringify(data)})`);
       try {
-        const result = await handler(...args);
+        const result = await handler(data);
         connection.send(JSON.stringify(result.rows), { binary: false });
       } catch (err) {
         console.error(err);
