@@ -7,7 +7,7 @@ const load = require("./load.js");
 const db = require("./db.js");
 const hash = require("./hash.js");
 const logger = require("./logger.js");
-const { ports, transport, transportOptions } = require("./config.js");
+const { ports, transport, transportOptions, staticOptions } = require("./config.js");
 const { stringifyArray } = require("./utils.js");
 
 const sandbox = {
@@ -19,7 +19,7 @@ const apiPath = path.join(process.cwd(), "./src/api");
 const routing = {};
 
 /**
- * @type {(routing: Record<string, any>, port: number) => void}
+ * @type {import("./transport/transport.d.ts").Transport}
  */
 let server;
 try {
@@ -44,6 +44,6 @@ try {
         routing[serviceName] = await load(filePath, sandbox);
     }
 
-    staticServer(path.resolve('./static'), ports.static);
+    staticServer(path.resolve('./static'), ports.static, staticOptions);
     server(routing, ports.api);
 })();

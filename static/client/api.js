@@ -34,4 +34,4 @@ function buildApi(url) {
     return client.init();
 }
 
-export const client = await buildApi("ws://127.0.0.1:8080");
+export const client = await buildApi("https://127.0.0.1:8080");

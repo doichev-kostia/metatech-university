@@ -3,5 +3,5 @@
 const webSocketFactory = require("./_ws.js");
 
 module.exports = (routing, port) => {
- webSocketFactory({ routing, port, options: { secure: false } });
+    webSocketFactory({ routing, port, options: { secure: true } });
 };
