@@ -6,12 +6,38 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Metatech university</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="px-4 py-3">
+<main class="mx-auto max-w-3xl">
 
-<h1>Metatech university</h1>
+    <h1 class="text-gray-600 text-3xl mb-4">Metatech university</h1>
 
-<button id="btn">Click me</button>
+    <h3 class="text-gray-600 mb-3">Get user</h3>
+    <form id="get-user" class="border border-solid border-2 rounded-xl px-4 py-3 mb-6">
+        <div class="mb-4">
+            <label for="user_id" class="block mb-2 text-sm font-medium text-gray-900">User id</label>
+            <input type="text" name="id" id="user_id"
+                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
+                   required>
+        </div>
+        <div class="flex items-center justify-center">
+
+            <button type="submit"
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center">
+                Get user
+            </button>
+        </div>
+    </form>
+
+    <div id="output" class="mb-6">
+
+    </div>
+
+    <h3 class="text-gray-600">Create user</h3>
+    <form id="create-user">
+    </form>
+</main>
 
 <script src="/main.js" type="module"></script>
 </body>
