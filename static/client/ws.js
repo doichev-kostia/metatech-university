@@ -1,8 +1,4 @@
-'use strict';
-
-const socket = new WebSocket('ws://127.0.0.1:8001/');
-
-const scaffold = (structure) => {
+const scaffold = (structure, socket) => {
   const api = {};
   const services = Object.keys(structure);
   for (const serviceName of services) {
@@ -10,12 +6,12 @@ const scaffold = (structure) => {
     const service = structure[serviceName];
     const methods = Object.keys(service);
     for (const methodName of methods) {
-      api[serviceName][methodName] = (...args) => new Promise((resolve) => {
-        const packet = { name: serviceName, method: methodName, args };
+      api[serviceName][methodName] = (data) => new Promise((resolve) => {
+        const packet = { name: serviceName, method: methodName, data };
         socket.send(JSON.stringify(packet));
         socket.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          resolve(data);
+          const response = JSON.parse(event.data);
+          resolve(response);
         };
       });
     }
@@ -23,22 +19,29 @@ const scaffold = (structure) => {
   return api;
 };
 
-const api = scaffold({
-  user: {
-    create: ['record'],
-    read: ['id'],
-    update: ['id', 'record'],
-    delete: ['id'],
-    find: ['mask'],
-  },
-  country: {
-    read: ['id'],
-    delete: ['id'],
-    find: ['mask'],
-  },
-});
+export class Client {
+    #config;
+    #socket;
+    #api;
+    /**
+     *
+     * @param {Record<string, Record<string, string[]>>} structure
+     * @param {{
+     *   prefixURL: string,
+     * }}options
+     */
+    constructor(structure, options) {
+        this.#config = {...options};
+        this.#socket = new WebSocket(this.#config.prefixURL);
+        this.#api = scaffold(structure, this.socket);
+    }
 
-socket.addEventListener('open', async () => {
-  const data = await api.user.read(3);
-  console.dir({ data });
-});
+
+    get socket() {
+        return this.#socket;
+    }
+
+    get api() {
+        return this.#api;
+    }
+}

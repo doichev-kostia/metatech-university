@@ -1,24 +1,5 @@
-/**
- *
- * @param {Record<string, Record<string, {
- *   parameters: string[],
- *
- * }>>} structure
- * @param {{
- *   prefixURL: string,
- *   throwOnError: boolean
- * }} config
- */
-function scaffold(structure, config) {
-  const options = {
-    prefixURL: config.prefixURL || "",
-    throwOnError: config.throwOnError || false,
-  };
 
-  if (!options.prefixURL.endsWith("/")) {
-    options.prefixURL += "/";
-  }
-
+function scaffold(structure, client) {
   const api = {};
   const services = Object.keys(structure);
   for (const serviceName of services) {
@@ -26,56 +7,60 @@ function scaffold(structure, config) {
     const service = structure[serviceName];
     const methods = Object.keys(service);
     for (const methodName of methods) {
-      const method = service[methodName];
-      api[serviceName][methodName] = async (...args) => {
-        const hasId = method.at(0) === "id";
-
-        if (args.length !== method.length) {
-          throw new Error(`Expected ${method.length} arguments, got ${args.length}`);
-        }
-        let parameters = [...args];
-        let input = options.prefixURL + serviceName;
-        if (hasId) {
-          input += `/${parameters.shift()}`;
-        }
-
-        const [body] = parameters;
-
-        const response = await fetch(input, {
-          method: methodName.toUpperCase(),
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
+      api[serviceName][methodName] = async (data) => {
+        return await client.request(`${serviceName}/${methodName}`, {
+          method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
         });
-
-        if (!response.ok && options.throwOnError) {
-          throw new Error(`HTTP ${response.status} ${response.statusText}. ${await response.text()}`);
-        }
-
-        return response;
       };
     }
   }
   return api;
 }
 
-export const api = scaffold({
-  user: {
-    create: ["record"],
-    read: ["id"],
-    update: ["id", "record"],
-    delete: ["id"],
-    find: ["mask"],
-  },
-  country: {
-    read: ["id"],
-    delete: ["id"],
-    find: ["mask"],
-  },
-}, {
-  prefixURL: "http://localhost:8080",
-});
+export class Client {
+  #api;
+  #config;
 
+  /**
+   *
+   * @param {Record<string, Record<string, string[]>>} structure
+   * @param {{
+   *   prefixURL: string,
+   *   throwOnError: boolean
+   * }}options
+   */
+  constructor(structure, options) {
+    const config = {...options}
+    if (config.prefixURL && !(config.prefixURL.endsWith("/"))) {
+      config.prefixURL += "/";
+    }
+    this.#config = config;
+    this.#api = scaffold(structure, this);
+  }
 
+    get api() {
+        return this.#api;
+    }
 
+  /**
+   *
+   * @param {string} url
+   * @param { RequestInit } init
+   */
+  async request(url, init) {
+    if (url.startsWith("/")) {
+      url = url.slice(1);
+    }
+
+    const input = this.#config.prefixURL + url;
+    const response = await fetch(input, init);
+
+    if (!response.ok && this.#config.throwOnError) {
+      throw new Error(`HTTP ${response.status} ${response.statusText}. ${await response.text()}`);
+    }
+
+    return response;
+  }
+}
